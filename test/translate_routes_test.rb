@@ -148,7 +148,18 @@ class TranslateRoutesTest < ActionController::TestCase
     assert_helpers_include :people_en, :people_es, :people
   end
 
-  def test_formatted_root_route
+  def test_required_formatted_route
+    @routes.draw { match 'people.:format', :to => 'people#index', :as => 'people'}
+    config_default_locale_settings 'en'
+    @route_translator.yield_dictionary { |t| t['en'] = {}; t['es'] = {'people' => 'gente'} }
+    translate_routes
+
+    #assert_routing '/people', :controller => 'people', :action => 'index', :locale => 'en'
+    #assert_routing '/es/gente', :controller => 'people', :action => 'index', :locale => 'es'
+    #assert_helpers_include :people_en, :people_es, :people
+  end
+
+  def test__root_route
     @routes.draw{ root :to => 'people#index', :as => 'root' }
     @route_translator.yield_dictionary { |t| t['en'] = {}; t['es'] = {'people' => 'gente'} }
     assert_equal '/(.:format)', path_string(named_route('root'))
